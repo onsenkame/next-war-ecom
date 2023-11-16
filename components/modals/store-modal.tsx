@@ -2,13 +2,18 @@
 
 import * as z from "zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 import { Modal } from "@/components/ui/modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { useStoreModal } from "@/hooks/use-store-modal";
+
 
 const formSchema = z.object({
     name: z.string().min(1),
@@ -17,6 +22,9 @@ const formSchema = z.object({
 
 export const StoreModal = () => {
     const storeModal = useStoreModal();
+    const router = useRouter();
+
+    const [loading, setLoading] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -27,7 +35,17 @@ export const StoreModal = () => {
     });
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values, "created from store");
+        try {
+            setLoading(true);
+            const response = await axios.post('/api/stores', values);
+            console.log('response', response.data)
+            // window.location.assign(`/${response.data.id}`);
+            toast.success('Store created successfully');
+          } catch (error) {
+            toast.error('Something went wrong');
+          } finally {
+            setLoading(false);
+          }
     };
 
     return (
@@ -48,7 +66,7 @@ export const StoreModal = () => {
                                     <FormItem>
                                         <FormLabel>Name</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Store Name Here" {...field} />
+                                            <Input disabled={loading} placeholder="Store Name Here" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -63,14 +81,14 @@ export const StoreModal = () => {
                                     <FormItem>
                                         <FormLabel>Description</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="What are you selling?" {...field} />
+                                            <Input disabled={loading} placeholder="What are you selling?" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
                             <div className="pt-6 space-x-2 flex items-center justify-end w-full">
-                                <Button variant="outline" onClick={storeModal.onClose}>
+                                <Button disabled={loading} variant="outline" onClick={storeModal.onClose}>
                                     Cancel
                                 </Button>
                                 <Button type="submit">Continue</Button>
