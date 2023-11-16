@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 
 import { Modal } from "@/components/ui/modal";
@@ -22,7 +21,6 @@ const formSchema = z.object({
 
 export const StoreModal = () => {
     const storeModal = useStoreModal();
-    const router = useRouter();
 
     const [loading, setLoading] = useState(false);
 
