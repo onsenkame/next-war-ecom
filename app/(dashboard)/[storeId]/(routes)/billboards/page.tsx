@@ -1,30 +1,37 @@
+import { format } from "date-fns";
+
 import prismadb from "@/lib/prismadb";
 
+import { BillboardColumn } from "./components/columns"
 import { BillboardClient } from "./components/client";
 
-// import { BillboardForm } from "./components/billboard-form";
+const BillboardsPage = async ({
+  params
+}: {
+  params: { storeId: string }
+}) => {
+  const billboards = await prismadb.billboard.findMany({
+    where: {
+      storeId: params.storeId
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
 
-// const BillboardPage = async ({
-//   params
-// }: {
-//   params: { billboardId: string }
-// }) => {
-//   const billboard = await prismadb.billboard.findUnique({
-//     where: {
-//       id: params.billboardId
-//     }
-//   });
+  const formattedBillboards: BillboardColumn[] = billboards.map((item) => ({
+    id: item.id,
+    label: item.label,
+    createdAt: format(item.createdAt, 'MMMM do, yyyy'),
+  }));
 
-const BillboardPage = () => {
-
-  return ( 
+  return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        {/* <BillboardForm initialData={billboard} /> */}
-        <BillboardClient />
+        <BillboardClient data={formattedBillboards} />
       </div>
     </div>
   );
-}
+};
 
-export default BillboardPage;
+export default BillboardsPage;
